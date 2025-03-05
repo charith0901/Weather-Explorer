@@ -1,11 +1,13 @@
-import "./index.css";
-import 'leaflet/dist/leaflet.css';
 import React, { useState, useEffect } from 'react';
-import WeatherCard from './components/weathercard';
 import axios from 'axios';
-import Loader from "./components/Loader";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import { WiDaySunny, WiTime3, WiThermometer } from 'react-icons/wi';
+import { WiDaySunny, WiTime3, WiThermometer, WiHumidity, WiStrongWind, WiSunrise, WiSunset } from 'react-icons/wi';
+
+import './index.css';
+import 'leaflet/dist/leaflet.css';
+
+import WeatherCard from './components/WeatherCard';
+import Loader from './components/Loader';
 
 const App = () => {
     const [weather, setWeather] = useState(null);
@@ -17,6 +19,7 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [activeTab, setActiveTab] = useState('current');
+    const [temperatureUnit, setTemperatureUnit] = useState('celsius');
 
     // Get user's location
     useEffect(() => {
@@ -31,16 +34,16 @@ const App = () => {
                 },
                 (err) => {
                     setError("Location access denied. Using default location.");
-                    setLocation({ lat: 40.7128, lon: -74.0060 }); // Default to New York
+                    setLocation({ lat: 40.7128, lon: -74.0060 });
                 }
             );
         } else {
             setError("Geolocation is not supported by your browser. Using default location.");
-            setLocation({ lat: 40.7128, lon: -74.0060 }); // Default to New York
+            setLocation({ lat: 40.7128, lon: -74.0060 });
         }
     }, []);
 
-    // Fetch weather and forecast for user's current location
+    // Fetch weather for user's current location
     useEffect(() => {
         const fetchMyWeather = async () => {
             if (location.lat && location.lon) {
@@ -66,7 +69,7 @@ const App = () => {
         fetchMyWeather();
     }, [location]);
 
-    // Fetch weather and forecast by coordinates
+    // Fetch weather by coordinates
     const fetchWeatherAndForecast = async (lat, lon) => {
         try {
             setLoading(true);
@@ -92,7 +95,55 @@ const App = () => {
         }
     };
 
-    // Component for handling map clicks
+    // Temperature conversion utilities
+    const convertTemperature = (temp) => {
+        if (temperatureUnit === 'fahrenheit') {
+            return ((temp * 9/5) + 32).toFixed(1);
+        }
+        return temp.toFixed(1);
+    };
+
+    const getTemperatureUnitSymbol = () => {
+        return temperatureUnit === 'celsius' ? '°C' : '°F';
+    };
+
+    const convertWindSpeed = (speed) => {
+        return temperatureUnit === 'fahrenheit' 
+            ? (speed * 2.237).toFixed(1) 
+            : speed.toFixed(1);
+    };
+
+    // Render weather details
+    const renderWeatherDetails = (currentWeather) => {
+        if (!currentWeather) return null;
+
+        return (
+            <div className="grid grid-cols-2 gap-4 mt-4 text-white">
+                <div className="flex items-center">
+                    <WiHumidity className="mr-2" size={24} />
+                    <span>Humidity: {currentWeather.main.humidity}%</span>
+                </div>
+                <div className="flex items-center">
+                    <WiStrongWind className="mr-2" size={24} />
+                    <span>Wind: {convertWindSpeed(currentWeather.wind.speed)} {temperatureUnit === 'celsius' ? 'm/s' : 'mph'}</span>
+                </div>
+                {currentWeather.sys && (
+                    <>
+                        <div className="flex items-center">
+                            <WiSunrise className="mr-2" size={24} />
+                            <span>Sunrise: {new Date(currentWeather.sys.sunrise * 1000).toLocaleTimeString()}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <WiSunset className="mr-2" size={24} />
+                            <span>Sunset: {new Date(currentWeather.sys.sunset * 1000).toLocaleTimeString()}</span>
+                        </div>
+                    </>
+                )}
+            </div>
+        );
+    };
+
+    // Map click handler
     const MapClickHandler = () => {
         useMapEvents({
             click: (event) => {
@@ -103,7 +154,7 @@ const App = () => {
         return null;
     };
 
-    // Format date for forecast display
+    // Date formatting
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
         return date.toLocaleDateString('en-US', {
@@ -113,8 +164,20 @@ const App = () => {
         });
     };
 
+    // Temperature unit toggle
+    const TemperatureUnitToggle = () => (
+        <div className="absolute top-4 right-4">
+            <button 
+                onClick={() => setTemperatureUnit(temperatureUnit === 'celsius' ? 'fahrenheit' : 'celsius')}
+                className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-full transition"
+            >
+                Switch to {temperatureUnit === 'celsius' ? 'Fahrenheit' : 'Celsius'}
+            </button>
+        </div>
+    );
+
     return (
-        <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-700">
+        <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-700 relative">
             {/* Header */}
             <header className="py-6 px-4 bg-black/30 backdrop-blur-sm">
                 <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
@@ -161,7 +224,10 @@ const App = () => {
             </header>
 
             {/* Main Content */}
-            <main className="container mx-auto p-4">
+            <main className="container mx-auto p-4 relative">
+                {/* Temperature Unit Toggle */}
+                <TemperatureUnitToggle />
+
                 {/* Loading State */}
                 {loading && (
                     <div className="flex justify-center items-center h-64">
@@ -179,6 +245,7 @@ const App = () => {
                 {/* Content based on active tab */}
                 {!loading && (
                     <div className="mt-4">
+                        {/* Current Location Tab */}
                         {activeTab === 'current' && myWeather && (
                             <div className="space-y-8">
                                 <div className="flex flex-col items-center">
@@ -187,10 +254,21 @@ const App = () => {
                                             <WiThermometer className="mr-2" size={32} />
                                             Current Location Weather
                                         </h2>
-                                        <WeatherCard weather={myWeather} />
+                                        <WeatherCard 
+                                            weather={{
+                                                ...myWeather,
+                                                main: {
+                                                    ...myWeather.main,
+                                                    temp: convertTemperature(myWeather.main.temp)
+                                                }
+                                            }} 
+                                            temperatureUnit={getTemperatureUnitSymbol()}
+                                        />
+                                        {renderWeatherDetails(myWeather)}
                                     </div>
                                 </div>
                                 
+                                {/* Forecast */}
                                 {myForecast && (
                                     <div className="mt-8">
                                         <h2 className="text-white text-2xl font-bold mb-6 flex items-center">
@@ -205,7 +283,16 @@ const App = () => {
                                                         <p className="text-white text-center font-medium mb-2">
                                                             {formatDate(item.dt_txt)}
                                                         </p>
-                                                        <WeatherCard weather={item} />
+                                                        <WeatherCard 
+                                                            weather={{
+                                                                ...item,
+                                                                main: {
+                                                                    ...item.main,
+                                                                    temp: convertTemperature(item.main.temp)
+                                                                }
+                                                            }} 
+                                                            temperatureUnit={getTemperatureUnitSymbol()}
+                                                        />
                                                     </div>
                                                 ))}
                                         </div>
@@ -214,6 +301,7 @@ const App = () => {
                             </div>
                         )}
 
+                        {/* Selected Location Tab */}
                         {activeTab === 'selected' && weather && (
                             <div className="space-y-8">
                                 <div className="flex flex-col items-center">
@@ -222,10 +310,21 @@ const App = () => {
                                             <WiThermometer className="mr-2" size={32} />
                                             Selected Location Weather
                                         </h2>
-                                        <WeatherCard weather={weather} />
+                                        <WeatherCard 
+                                            weather={{
+                                                ...weather,
+                                                main: {
+                                                    ...weather.main,
+                                                    temp: convertTemperature(weather.main.temp)
+                                                }
+                                            }} 
+                                            temperatureUnit={getTemperatureUnitSymbol()}
+                                        />
+                                        {renderWeatherDetails(weather)}
                                     </div>
                                 </div>
                                 
+                                {/* Forecast */}
                                 {forecast && (
                                     <div className="mt-8">
                                         <h2 className="text-white text-2xl font-bold mb-6 flex items-center">
@@ -240,7 +339,16 @@ const App = () => {
                                                         <p className="text-white text-center font-medium mb-2">
                                                             {formatDate(item.dt_txt)}
                                                         </p>
-                                                        <WeatherCard weather={item} />
+                                                        <WeatherCard 
+                                                            weather={{
+                                                                ...item,
+                                                                main: {
+                                                                    ...item.main,
+                                                                    temp: convertTemperature(item.main.temp)
+                                                                }
+                                                            }} 
+                                                            temperatureUnit={getTemperatureUnitSymbol()}
+                                                        />
                                                     </div>
                                                 ))}
                                         </div>
@@ -249,6 +357,7 @@ const App = () => {
                             </div>
                         )}
 
+                        {/* Map Tab */}
                         {activeTab === 'map' && (
                             <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg shadow-lg">
                                 <h2 className="text-white text-2xl font-bold mb-4">

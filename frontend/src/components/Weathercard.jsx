@@ -13,9 +13,11 @@ import {
   WiSunset,
   WiBarometer
 } from 'react-icons/wi';
+import ShareButton from './ShareButton';
 
 const WeatherCard = ({ weather }) => {
     const [animate, setAnimate] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     
     useEffect(() => {
         setAnimate(true);
@@ -106,87 +108,210 @@ const WeatherCard = ({ weather }) => {
     const { icon, bgColor, label } = getIconConfig(condition);
     
     return (
-        <div className={`relative overflow-hidden rounded-3xl shadow-2xl max-w-md mx-auto 
-                         transition-all duration-500 transform 
-                         ${animate ? 'scale-105' : 'scale-100'}`}>
-            {/* Top section with gradient background */}
-            <div className={`${getTemperatureStyle(weather.main.temp)} p-6 pb-16`}>
-                {/* Date and Location */}
-                <div className="flex justify-between items-start">
-                    <div>
-                        <p className="text-white text-sm font-medium mb-1">{date}</p>
-                        <h2 className="text-3xl font-bold text-white">
-                            {weather.name}, {weather.sys.country}
-                        </h2>
-                    </div>
-                    
-                    {/* Temperature */}
-                    <div className="flex items-center">
-                        <WiThermometer size={36} className="text-white" />
-                        <span className="text-4xl font-bold text-white">
-                            {Math.round(weather.main.temp)}°
-                        </span>
+        <div 
+            className={`
+                relative 
+                overflow-hidden 
+                rounded-3xl 
+                shadow-2xl 
+                max-w-md 
+                mx-auto 
+                transition-all 
+                duration-500 
+                transform 
+                hover:scale-[1.02] 
+                hover:shadow-3xl 
+                ${animate ? 'animate-pulse-soft' : ''}
+            `}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            {/* Top section with gradient background and staggered entrance animation */}
+            <div 
+                className={`
+                    ${getTemperatureStyle(weather.main.temp)} 
+                    p-6 
+                    pb-16 
+                    relative 
+                    overflow-hidden
+                `}
+            >
+                {/* Animated background elements */}
+                <div 
+                    className={`
+                        absolute 
+                        -top-10 
+                        -right-10 
+                        opacity-10 
+                        transition-transform 
+                        duration-700 
+                        ${isHovered ? 'rotate-12 scale-110' : 'rotate-0'}
+                    `}
+                >
+                    <WiCloud size={200} className="text-white animate-drift" />
+                </div>
+
+                {/* Date and Location with staggered animation */}
+                <div className="relative z-10 transform transition-transform duration-500 animate-slide-in-top">
+                    <div className="flex justify-between items-start">
+                        <div className="space-y-2">
+                            <p className="text-white text-sm font-medium opacity-80 animate-fade-in delay-100">
+                                {date}
+                            </p>
+                            <h2 className="text-3xl font-bold text-white animate-fade-in delay-200">
+                                {weather.name}, {weather.sys.country}
+                            </h2>
+                        </div>
+                        
+                        {/* Temperature with wobble effect */}
+                        <div 
+                            className={`
+                                flex 
+                                items-center 
+                                transition-transform 
+                                duration-300 
+                                hover:animate-wobble
+                            `}
+                        >
+                            <WiThermometer size={36} className="text-white" />
+                            <span className="text-4xl font-bold text-white">
+                                {Math.round(weather.main.temp)}°
+                            </span>
+                        </div>
                     </div>
                 </div>
                 
                 {/* Main weather icon and description */}
-                <div className="mt-6 flex items-center">
-                    <div className={`${bgColor} p-4 rounded-full mr-4`}>
+                <div 
+                    className="
+                        mt-6 
+                        flex 
+                        items-center 
+                        transform 
+                        transition-transform 
+                        duration-500 
+                        animate-slide-in-bottom
+                    "
+                >
+                    <div 
+                        className={`
+                            ${bgColor} 
+                            p-4 
+                            rounded-full 
+                            mr-4 
+                            transition-all 
+                            duration-300 
+                            hover:rotate-12 
+                            hover:scale-110
+                        `}
+                    >
                         {icon}
                     </div>
                     <div>
-                        <p className="text-xl font-bold text-white">{label}</p>
-                        <p className="text-white capitalize opacity-80">
+                        <p className="text-xl font-bold text-white animate-fade-in delay-300">
+                            {label}
+                        </p>
+                        <p 
+                            className="
+                                text-white 
+                                capitalize 
+                                opacity-80 
+                                animate-fade-in 
+                                delay-500
+                            "
+                        >
                             {weather.weather[0].description}
                         </p>
                     </div>
                 </div>
             </div>
             
-            {/* Bottom section with details */}
-            <div className="bg-white dark:bg-gray-800 p-6 -mt-10 rounded-t-3xl">
-                {/* Weather details */}
+            {/* Bottom section with subtle hover and interactive effects */}
+            <div 
+                className="
+                    bg-white 
+                    dark:bg-gray-800 
+                    p-6 
+                    -mt-10 
+                    rounded-t-3xl 
+                    transition-all 
+                    duration-300 
+                    hover:shadow-lg
+                "
+            >
+                {/* Weather details grid with hover and interaction effects */}
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-xl">
-                        <WiHumidity size={28} className="text-blue-500 mr-3" />
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Humidity</p>
-                            <p className="text-lg font-semibold dark:text-white">{weather.main.humidity}%</p>
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-xl">
-                        <WindIcon size={28} className="text-teal-500 mr-3" />
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Wind Speed</p>
-                            <p className="text-lg font-semibold dark:text-white">{weather.wind.speed} m/s</p>
-                        </div>
-                    </div>
-                    
-                    {weather.main.pressure && (
-                        <div className="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-xl">
-                            <WiBarometer size={28} className="text-purple-500 mr-3" />
+                    {[
+                        { 
+                            icon: <WiHumidity size={28} className="text-blue-500 mr-3" />, 
+                            label: "Humidity", 
+                            value: `${weather.main.humidity}%` 
+                        },
+                        { 
+                            icon: <WindIcon size={28} className="text-teal-500 mr-3" />, 
+                            label: "Wind Speed", 
+                            value: `${weather.wind.speed} m/s` 
+                        },
+                        weather.main.pressure && { 
+                            icon: <WiBarometer size={28} className="text-purple-500 mr-3" />, 
+                            label: "Pressure", 
+                            value: `${weather.main.pressure} hPa` 
+                        },
+                        weather.main.feels_like && { 
+                            icon: <WiThermometer size={28} className="text-red-500 mr-3" />, 
+                            label: "Feels Like", 
+                            value: `${Math.round(weather.main.feels_like)}°C` 
+                        }
+                    ].filter(Boolean).map((detail, index) => (
+                        <div 
+                            key={detail.label}
+                            className={`
+                                flex 
+                                items-center 
+                                p-3 
+                                bg-gray-100 
+                                dark:bg-gray-700 
+                                rounded-xl 
+                                transition-all 
+                                duration-300 
+                                hover:scale-105 
+                                hover:shadow-md
+                                animate-slide-in-right
+                            `}
+                            style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                            {detail.icon}
                             <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Pressure</p>
-                                <p className="text-lg font-semibold dark:text-white">{weather.main.pressure} hPa</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {detail.label}
+                                </p>
+                                <p className="text-lg font-semibold dark:text-white">
+                                    {detail.value}
+                                </p>
                             </div>
                         </div>
-                    )}
-                    
-                    {weather.main.feels_like && (
-                        <div className="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-xl">
-                            <WiThermometer size={28} className="text-red-500 mr-3" />
-                            <div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Feels Like</p>
-                                <p className="text-lg font-semibold dark:text-white">{Math.round(weather.main.feels_like)}°C</p>
-                            </div>
-                        </div>
-                    )}
+                    ))}
                 </div>
                 
-                {/* Sunrise and Sunset if available */}
+                {/* Sunrise and Sunset section */}
                 {(sunrise && sunset) && (
-                    <div className="flex justify-between items-center mt-6 p-3 bg-gray-100 dark:bg-gray-700 rounded-xl">
+                    <div 
+                        className="
+                            flex 
+                            justify-between 
+                            items-center 
+                            mt-6 
+                            p-3 
+                            bg-gray-100 
+                            dark:bg-gray-700 
+                            rounded-xl
+                            transition-all 
+                            duration-300 
+                            hover:scale-[1.02]
+                            animate-slide-in-bottom
+                        "
+                    >
+                        {/* Sunrise block */}
                         <div className="flex items-center">
                             <WiSunrise size={32} className="text-yellow-500 mr-2" />
                             <div>
@@ -194,6 +319,8 @@ const WeatherCard = ({ weather }) => {
                                 <p className="text-md font-semibold dark:text-white">{sunrise}</p>
                             </div>
                         </div>
+                        
+                        {/* Sunset block */}
                         <div className="flex items-center">
                             <WiSunset size={32} className="text-orange-500 mr-2" />
                             <div>
@@ -205,12 +332,59 @@ const WeatherCard = ({ weather }) => {
                 )}
             </div>
             
-            {/* Subtle animated cloud background element */}
-            <div className="absolute top-0 right-0 opacity-20">
-                <WiCloud size={120} className="text-white animate-pulse" />
-            </div>
+            {/* ShareButton with gentle animation */}
+            {weather && (
+                <div 
+                    className="
+                        mt-4 
+                        p-4 
+                        transition-all 
+                        duration-500 
+                        animate-fade-in
+                    "
+                >
+                    <ShareButton 
+                        location={weather.name}
+                        temperature={weather.main.temp}
+                        description={weather.weather[0].description}
+                    />
+                </div>
+            )}
         </div>
     );
 };
 
 export default WeatherCard;
+
+// Add these custom Tailwind animations in your global CSS or Tailwind config
+const customAnimations = {
+    '@keyframes drift': {
+        '0%, 100%': { transform: 'translateX(0) translateY(0)' },
+        '50%': { transform: 'translateX(10px) translateY(-10px)' },
+    },
+    '@keyframes pulse-soft': {
+        '0%, 100%': { transform: 'scale(1)' },
+        '50%': { transform: 'scale(1.02)' },
+    },
+    '@keyframes slide-in-top': {
+        '0%': { opacity: 0, transform: 'translateY(-20px)' },
+        '100%': { opacity: 1, transform: 'translateY(0)' },
+    },
+    '@keyframes slide-in-bottom': {
+        '0%': { opacity: 0, transform: 'translateY(20px)' },
+        '100%': { opacity: 1, transform: 'translateY(0)' },
+    },
+    '@keyframes slide-in-right': {
+        '0%': { opacity: 0, transform: 'translateX(20px)' },
+        '100%': { opacity: 1, transform: 'translateX(0)' },
+    },
+    '@keyframes fade-in': {
+        '0%': { opacity: 0 },
+        '100%': { opacity: 1 },
+    },
+    '@keyframes wobble': {
+        '0%, 100%': { transform: 'rotate(0deg)' },
+        '25%': { transform: 'rotate(-5deg)' },
+        '75%': { transform: 'rotate(5deg)' },
+    }
+};

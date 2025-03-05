@@ -2,3 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Add this to your existing CSS */
+
+/* Dark Theme Styles */
+.dark-theme .leaflet-container {
+  filter: brightness(0.8) contrast(1.2);
+}
+
+.dark-theme .leaflet-tile {
+  filter: grayscale(0.5) invert(0.8) hue-rotate(180deg);
+}
+
+@media (prefers-color-scheme: dark) {
+  body.prefers-dark {
+    background-color: #1a202c;
+    color: white;
+  }
+}
+
