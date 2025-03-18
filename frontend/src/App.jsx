@@ -50,10 +50,10 @@ const App = () => {
                 setLoading(true);
                 try {
                     const [weatherRes, forecastRes] = await Promise.all([
-                        axios.get('http://localhost:5000/api/weather', {
+                        axios.get(import.meta.env.VITE_API_URL +'/api/weather', {
                             params: { city: `${location.lat},${location.lon}` },
                         }),
-                        axios.get('http://localhost:5000/api/forecast', {
+                        axios.get(import.meta.env.VITE_API_URL +'api/forecast', {
                             params: { city: `${location.lat},${location.lon}` },
                         }),
                     ]);
@@ -75,10 +75,10 @@ const App = () => {
             setLoading(true);
             setError('');
             const [weatherRes, forecastRes] = await Promise.all([
-                axios.get('http://localhost:5000/api/weather', {
+                axios.get(import.meta.env.VITE_API_URL +'/api/weather', {
                     params: { city: `${lat},${lon}` },
                 }),
-                axios.get('http://localhost:5000/api/forecast', {
+                axios.get(import.meta.env.VITE_API_URL +'/api/forecast', {
                     params: { city: `${lat},${lon}` },
                 }),
             ]);
