@@ -6,7 +6,7 @@ import { WiDaySunny, WiTime3, WiThermometer, WiHumidity, WiStrongWind, WiSunrise
 import './index.css';
 import 'leaflet/dist/leaflet.css';
 
-import WeatherCard from './components/WeatherCard';
+import WeatherCard from './components/Weathercard';
 import Loader from './components/Loader';
 
 const App = () => {
