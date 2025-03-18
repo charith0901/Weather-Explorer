@@ -53,7 +53,7 @@ const App = () => {
                         axios.get(import.meta.env.VITE_API_URL +'/api/weather', {
                             params: { city: `${location.lat},${location.lon}` },
                         }),
-                        axios.get(import.meta.env.VITE_API_URL +'api/forecast', {
+                        axios.get(import.meta.env.VITE_API_URL +'/api/forecast', {
                             params: { city: `${location.lat},${location.lon}` },
                         }),
                     ]);
