@@ -60,7 +60,7 @@ const App = () => {
                     setMyWeather(weatherRes.data);
                     setMyForecast(forecastRes.data);
                 } catch (err) {
-                    setError(`Error fetching data: ${err.message}`);
+                    setError(`Error fetching data : ${err.message}`);
                 } finally {
                     setLoading(false);
                 }
